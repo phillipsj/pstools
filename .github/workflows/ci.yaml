@@ -1,0 +1,20 @@
+name: CI Workflow
+on:
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  build-containers:
+    name: Build Containers
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 3
+      matrix:
+        os: [ubuntu-latest, windows-2019, windows-2022]
+        base: [alpine-3.14, nanoserver-1809, nanoserver-ltsc2022]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Docker Build
+      run: docker build --build-arg BASE=${{ matrix.base }} .

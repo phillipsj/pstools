@@ -1,4 +1,5 @@
-FROM mcr.microsoft.com/powershell:latest
+ARG BASE
+FROM mcr.microsoft.com/powershell:${BASE}
 
 SHELL ["pwsh", "-Command"]
 
