@@ -3,7 +3,11 @@ FROM mcr.microsoft.com/powershell:${BASE}
 
 SHELL ["pwsh", "-Command"]
 
-RUN Install-Module -Name Polaris -Force
+USER ContainerAdministrator
+
+RUN Install-Module -Name Polaris -Force  
+
+USER ContainerUser
 
 COPY app.ps1 app.ps1
 

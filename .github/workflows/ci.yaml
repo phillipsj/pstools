@@ -12,9 +12,20 @@ jobs:
       max-parallel: 3
       matrix:
         os: [ubuntu-latest, windows-2019, windows-2022]
-        base: [alpine-3.14, nanoserver-1809, nanoserver-ltsc2022]
+        include:
+        - os: ubuntu-latest
+          base: alpine-3.14
+          file: Dockerfile.linux
+        - os: windows-2019
+          base: nanoserver-1809
+          file: Dockerfile.windows
+        - os: windows-2022
+          base: nanoserver-ltsc2022
+          file: Dockerfile.windows
     steps:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Docker Build
-      run: docker build --build-arg BASE=${{ matrix.base }} .
+      run: |
+        docker build -f ${{ matrix.file }} --build-arg BASE=${{ matrix.base }} .
+  
