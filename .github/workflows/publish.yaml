@@ -16,15 +16,15 @@ jobs:
         - os: ubuntu-latest
           base: alpine-3.14
           file: Dockerfile.linux
-          tag: phillipsj/pstools:${{ github.ref.name }}-linux-amd64
+          tag: phillipsj/pstools:${{ github.event.release.tag_name }}-linux-amd64
         - os: windows-2019
           base: nanoserver-1809
           file: Dockerfile.windows
-          tag: phillipsj/pstools:${{ github.ref.name }}-windows-ltsc2019-amd64
+          tag: phillipsj/pstools:${{ github.event.release.tag_name }}-windows-ltsc2019-amd64
         - os: windows-2022
           base: nanoserver-ltsc2022
           file: Dockerfile.windows
-          tag: phillipsj/pstools:${{ github.ref.name }}-windows-ltsc2022-amd64
+          tag: phillipsj/pstools:${{ github.event.release.tag_name }}-windows-ltsc2022-amd64
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -54,19 +54,19 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Docker Manifest
         run: |
-          docker manifest create phillipsj/pstools:${{ github.ref.name }} \
-            --amend phillipsj/pstools:${{ github.ref.name }}-linux-amd64 \
-            --amend phillipsj/pstools:${{ github.ref.name }}-windows-ltsc2019-amd64 \
-            --amend phillipsj/pstools:${{ github.ref.name }}-windows-ltsc2022-amd64
+          docker manifest create phillipsj/pstools:${{ github.event.release.tag_name }} \
+            --amend phillipsj/pstools:${{ github.event.release.tag_name }}-linux-amd64 \
+            --amend phillipsj/pstools:${{ github.event.release.tag_name }}-windows-ltsc2019-amd64 \
+            --amend phillipsj/pstools:${{ github.event.release.tag_name }}-windows-ltsc2022-amd64
       - name: Docker Annotate
         run: |
           docker manifest annotate --os windows --arch amd64 \
             --os-version "10.0.17763.1817" \
-            phillipsj/pstools:${{ github.ref.name }} phillipsj/pstools:${{ github.ref.name }}-windows-ltsc2019-amd64
+            phillipsj/pstools:${{ github.event.release.tag_name }} phillipsj/pstools:${{ github.event.release.tag_name }}-windows-ltsc2019-amd64
     
           docker manifest annotate --os windows --arch amd64 \
             --os-version "10.0.20348.169"\
-            phillipsj/pstools:${{ github.ref.name }} phillipsj/pstools:${{ github.ref.name }}-windows-ltsc2022-amd64
+            phillipsj/pstools:${{ github.event.release.tag_name }} phillipsj/pstools:${{ github.event.release.tag_name }}-windows-ltsc2022-amd64
       - name: Docker Push
         run: |
-          docker manifest push phillipsj/pstools:${{ github.ref.name }}
+          docker manifest push phillipsj/pstools:${{ github.event.release.tag_name }}
