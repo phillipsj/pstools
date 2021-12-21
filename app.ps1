@@ -1,12 +1,13 @@
-Import-Module Polaris
+Import-Module Pode
 
-New-PolarisRoute -Path "/" -Method GET -Scriptblock {
-    $Response.Json((Get-Uptime | ConvertTo-Json))
-} 
+Start-PodeServer {
+    Add-PodeEndpoint -Address * -Port 8080 -Protocol Http
 
-# Start the server
-$app = Start-Polaris -Port 80 -MinRunspaces 1 -MaxRunspaces 5 -UseJsonBodyParserMiddleware -Verbose # all params are optional
+    Add-PodeRoute -Method Get -Path '/' -ScriptBlock {
+        Write-PodeHtmlResponse -Value 'Hello! Welcome to PSTools for K8s Debugging.'
+    }
 
-while($app.Listener.IsListening){
-    Wait-Event callbackcomplete
+    Add-PodePage -Name 'uptime' -ScriptBlock { Get-Uptime }
+
+    Add-PodePage -Name 'processes' -ScriptBlock { Get-Process }
 }
