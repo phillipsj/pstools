@@ -1,0 +1,72 @@
+name: Publish Workflow
+on:
+  release:
+    types:
+    - published
+
+jobs:
+  build-publish-containers:
+    name: Build and Publish Containers
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 3
+      matrix:
+        os: [ubuntu-latest, windows-2019, windows-2022]
+        include:
+        - os: ubuntu-latest
+          base: alpine-3.14
+          file: Dockerfile.linux
+          tag: phillipsj/pstools:${{ github.ref }}-linux-amd64
+        - os: windows-2019
+          base: nanoserver-1809
+          file: Dockerfile.windows
+          tag: phillipsj/pstools:${{ github.ref }}-windows-ltsc2019-amd64
+        - os: windows-2022
+          base: nanoserver-ltsc2022
+          file: Dockerfile.windows
+          tag: phillipsj/pstools:${{ github.ref }}-windows-ltsc2022-amd64
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Docker Build
+      run: |
+        docker build -f ${{ matrix.file }} --build-arg BASE=${{ matrix.base }} -t ${{ matrix.tag }} .
+    - name: Docker Push
+      run: |
+        docker push ${{ matrix.tag }}
+
+  publish-manfiest:
+    name: Publish Manifest
+    runs-on: ubuntu-latest
+    needs: build-publish-containers
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Docker Manifest
+        run: |
+          docker manifest create phillipsj/pstools:${{ github.ref }} \
+            --amend phillipsj/pstools:${{ github.ref }}-linux-amd64 \
+            --amend phillipsj/pstools:${{ github.ref }}-windows-ltsc2019-amd64 \
+            --amend phillipsj/pstools:${{ github.ref }}-windows-ltsc2022-amd64
+      - name: Docker Annotate
+        run: |
+          docker manifest annotate --os windows --arch amd64 \
+            --os-version "10.0.17763.1817" \
+            phillipsj/pstools:${{ github.ref }} phillipsj/pstools:${{ github.ref }}-windows-ltsc2019-amd64
+    
+          docker manifest annotate --os windows --arch amd64 \
+            --os-version "10.0.20348.169"\
+            phillipsj/pstools:${{ github.ref }} phillipsj/pstools:${{ github.ref }}-windows-ltsc2022-amd64
+      - name: Docker Push
+        run: |
+          docker manifest push phillipsj/pstools:${{ github.ref }}

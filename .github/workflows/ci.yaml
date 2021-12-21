@@ -1,5 +1,8 @@
 name: CI Workflow
 on:
+  push:
+    branches:
+    - main
   pull_request:
     branches:
     - main
@@ -28,4 +31,3 @@ jobs:
     - name: Docker Build
       run: |
         docker build -f ${{ matrix.file }} --build-arg BASE=${{ matrix.base }} .
-  
