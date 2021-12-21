@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/powershell:${BASE}
 
 SHELL ["pwsh", "-Command"]
 
-RUN Install-Module -Name Polaris -Force  
+RUN Install-Module -Name Pode -Force
 
 COPY app.ps1 app.ps1
 

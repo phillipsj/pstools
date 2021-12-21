@@ -5,7 +5,8 @@ SHELL ["pwsh", "-Command"]
 
 USER ContainerAdministrator
 
-RUN Install-Module -Name Polaris -Force  
+# Work around: https://stackoverflow.com/questions/58310649/error-install-package-authenticode-issuer-in-powershell-module
+RUN Install-Module -Name Pode -Scope AllUsers -Force -SkipPublisherCheck
 
 USER ContainerUser
 
