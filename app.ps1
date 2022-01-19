@@ -1,7 +1,7 @@
 Import-Module Pode
 
-Start-PodeServer {
-    Add-PodeEndpoint -Address * -Port 8080 -Protocol Http
+Start-PodeServer -DisableTermination {
+    Add-PodeEndpoint -Address * -Port 3000 -Protocol Http
 
     Add-PodeRoute -Method Get -Path '/' -ScriptBlock {
         Write-PodeHtmlResponse -Value 'Hello! Welcome to PSTools for K8s Debugging.'
